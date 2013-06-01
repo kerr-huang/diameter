@@ -5,8 +5,8 @@
 package diameter
 
 import (
-	"testing"
 	"bytes"
+	"testing"
 )
 
 type avpTest struct {
@@ -22,7 +22,7 @@ func EqualAvps(avp1, avp2 Avp) (result bool) {
 		result = result && avp1.VendorId == avp2.VendorId
 	}
 	result = result && bytes.Equal(avp1.Data, avp2.Data)
-	
+
 	return
 }
 
@@ -51,14 +51,14 @@ var avpTestData = []avpTest{
 		[]byte{0x00, 0x00, 0x00, 0x02, 0x40, 0x00, 0x00, 0x08},
 		0,
 		true,
-		Avp{Code:2, Flags:0x40}},
+		Avp{Code: 2, Flags: 0x40}},
 }
 
 func TestAvpDecoding(t *testing.T) {
 	for i, test := range avpTestData {
 		avp, _, err := decodeAvp(test.in, test.offset)
 		if (err == nil) != test.ok {
-			t.Errorf("#%d: Incorrect error result (did fail? %v, expected: %v) %s", i, err == nil, test.ok, err)
+			t.Errorf("#%d: Incorrect error result (did fail? %v, expected: %v)", i, err == nil, test.ok)
 		}
 		if test.ok && !EqualAvps(avp, test.avp) {
 			t.Errorf("#%d: Bad result: %v (expected %v)", i, avp, test.avp)
