@@ -77,13 +77,15 @@ func decodeAvp(buf []byte, offset uint32) (avp Avp, newOffset uint32, err error)
 	// If something happens, return the same offset as the one we received
 	newOffset = offset
 
+	var availableBufferSize uint32 = uint32(len(buf)) - offset
+
 	// Make sure that at least the minimum number of octets are there
-	if len(buf) < avpHeaderLength {
+	if availableBufferSize < avpHeaderLength {
 		err = StructuralError{"Not enough buffer space to read AVP Header"}
 		return
 	}
 
-	avp.Code = binary.BigEndian.Uint32(buf)
+	avp.Code = binary.BigEndian.Uint32(buf[newOffset : newOffset+4])
 	newOffset += 4
 
 	avp.Flags = buf[newOffset]
@@ -102,7 +104,7 @@ func decodeAvp(buf []byte, offset uint32) (avp Avp, newOffset uint32, err error)
 		err = StructuralError{fmt.Sprintf("AVP Length (%d) less than header size (%d)", avpLength, headerLength)}
 		return
 	}
-	if avpLength > uint32(len(buf)) {
+	if avpLength > availableBufferSize {
 		err = StructuralError{"Not enough buffer space to read AVP"}
 		return
 	}
@@ -125,8 +127,10 @@ func decodeMsg(buf []byte, offset uint32) (msg *Msg, newOffset uint32, err error
 	// If something happens, return the same offset as the one we received
 	newOffset = offset
 
+	var availableBufferSize uint32 = uint32(len(buf)) - offset
+
 	// Make sure that at least the minimum number of octets are there
-	if len(buf) < msgHeaderLength {
+	if availableBufferSize < msgHeaderLength {
 		err = StructuralError{"Not enough buffer space to read Message Header"}
 		return
 	}
@@ -142,7 +146,7 @@ func decodeMsg(buf []byte, offset uint32) (msg *Msg, newOffset uint32, err error
 		err = StructuralError{"Message Length less than header size"}
 		return
 	}
-	if msgLength > uint32(len(buf)) {
+	if msgLength > availableBufferSize {
 		err = StructuralError{"Not enough buffer space to read Message"}
 		return
 	}
