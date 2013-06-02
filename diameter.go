@@ -28,6 +28,8 @@ func paddedLength(length uint32) uint32 {
 	return (length + 3) & 0xfffffffc
 }
 
+// Length does not report the AVP Length field, but calculates the length of
+// the AVP based on its contents.
 func (avp Avp) Length() (avpLength uint32) {
 	avpLength = paddedLength(uint32(len(avp.Data)))
 	if avp.V() {
@@ -41,6 +43,19 @@ func (avp Avp) Length() (avpLength uint32) {
 
 func (avp Avp) V() bool {
 	return (avp.Flags & 0x80) != 0
+}
+
+func (avp Avp) SetFlags(V, M, P bool) {
+	avp.Flags = 0
+	if V {
+		avp.Flags |= 0x80
+	}
+	if M {
+		avp.Flags |= 0x40
+	}
+	if P {
+		avp.Flags |= 0x20
+	}
 }
 
 type Msg struct {
